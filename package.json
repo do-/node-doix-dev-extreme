@@ -1,0 +1,40 @@
+{
+  "name": "doix-devextreme",
+  "version": "0.0.1",
+  "description": "doix binding for DevExtreme framefork",
+  "main": "index.js",
+  "files": ["/lib", "/badges"],
+  "scripts": {
+    "test": "jest",
+    "test-ci": "jest --ci --coverage"
+  },
+  "jest": {
+	"collectCoverageFrom": [
+		"lib/**/*.js"
+	],
+	"coverageReporters": ["clover", "json", "lcov", "text", "json-summary"],
+  	"verbose": false,
+  	"testPathIgnorePatterns": [
+  		"/node_modules/",
+  		"/__tests__/data",
+  		"/__tests__/lib"
+  	]
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/do-/node-doix-devextreme.git"
+  },
+  "keywords": [
+    "doix",
+    "DevExtreme"
+  ],
+  "author": "Dmitry Ovsyanko",
+  "devDependencies": {
+    "jest": "^29.6.1"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/do-/node-doix-devextreme/issues"
+  },
+  "homepage": "https://github.com/do-/node-doix-devextreme#readme"
+}
