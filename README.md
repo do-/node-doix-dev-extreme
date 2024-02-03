@@ -51,7 +51,9 @@ In fact, this is the `db.model.createQuery` call, but with some additions from `
 
 # Limitations
 
-To date, only 
-* binary filters with (in)equity operators and not null values
-* complex filters with `and` operators
-are supported.
+To date,
+* `notcontains` 
+* `not`
+* `or`
+* null values
+are not yet supported.
