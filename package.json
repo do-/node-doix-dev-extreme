@@ -1,6 +1,6 @@
 {
   "name": "doix-devextreme",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "doix binding for DevExtreme framefork",
   "main": "index.js",
   "files": ["/lib", "/badges"],

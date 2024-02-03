@@ -58,6 +58,40 @@ test ('sort', () => {
 
 })
 
+test ('like', () => {
+
+	expect (new Job ({
+			take: 50,
+			skip: 0,		
+			filter: ['label', 'contains', 'admin']
+		}).db.dxQuery ([['users']])
+	).toStrictEqual ({
+		from: [['users', {filters: [['label', 'ILIKE', '%admin%']]}]],
+		options: {offset: 0, limit: 50}
+	})
+
+	expect (new Job ({
+		take: 50,
+		skip: 0,		
+		filter: ['label', 'startswith', 'admin']
+	}).db.dxQuery ([['users']])
+	).toStrictEqual ({
+		from: [['users', {filters: [['label', 'ILIKE', 'admin%']]}]],
+		options: {offset: 0, limit: 50}
+	})
+
+	expect (new Job ({
+		take: 50,
+		skip: 0,		
+		filter: ['label', 'endswith', 'admin']
+	}).db.dxQuery ([['users']])
+	).toStrictEqual ({
+		from: [['users', {filters: [['label', 'ILIKE', '%admin']]}]],
+		options: {offset: 0, limit: 50}
+	})
+
+})
+
 test ('search', () => {
 
 	expect (new Job ({
