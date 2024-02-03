@@ -52,7 +52,6 @@ In fact, this is the `db.model.createQuery` call, but with some additions from `
 # Limitations
 
 To date,
-* `notcontains` 
 * `not`
 * `or`
 * null values

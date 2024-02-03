@@ -63,6 +63,16 @@ test ('like', () => {
 	expect (new Job ({
 			take: 50,
 			skip: 0,		
+			filter: ['label', 'notcontains', 'admin']
+		}).db.dxQuery ([['users']])
+	).toStrictEqual ({
+		from: [['users', {filters: [['label', 'NOT ILIKE', '%admin%']]}]],
+		options: {offset: 0, limit: 50}
+	})
+
+	expect (new Job ({
+			take: 50,
+			skip: 0,		
 			filter: ['label', 'contains', 'admin']
 		}).db.dxQuery ([['users']])
 	).toStrictEqual ({
