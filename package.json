@@ -29,6 +29,9 @@
     "DevExtreme"
   ],
   "author": "Dmitry Ovsyanko",
+  "peerDependencies": {
+    "doix-db": "^1.0.38"
+  },
   "devDependencies": {
     "jest": "^29.6.1"
   },

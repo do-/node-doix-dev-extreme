@@ -1,22 +1,15 @@
+const {DbModel} = require ('doix-db')
 const {dxQuery} = require ('../lib/dxAdapter.js')
+const Path = require ('path')
+const src = Path.join (__dirname, 'data', 'root1')
 
 class Job {
 
-	constructor (loadOptions) {
+	constructor (model, loadOptions) {
 	
 		this.rq = {loadOptions}
 	
-		this.db = {
-		
-			dxQuery,
-		
-			model: {
-				
-				createQuery: (from, options) => ({from, options})
-		
-			}
-		
-		}
+		this.db = {dxQuery, model}
 		
 		this.db.job = this
 	
@@ -24,125 +17,97 @@ class Job {
 
 }
 
+const q = (l, o) => {
+
+	jest.resetModules ()
+	
+	const m = new DbModel ({src})	
+
+	m.loadModules ()
+
+	return new Job (m, l).db.dxQuery (o)
+
+}
+
+const pq = (l, o) => {
+
+	return q (l, o).toParamsSql ()
+
+}
+
+
 test ('basic', () => {
 
-	expect (new Job ({
-		}).db.dxQuery ([['users']])
-	).toStrictEqual ({
-		from: [['users']], 
-		options: {}
-	})
+	expect (pq (
+		{}, 
+		[['users']]
+	)).toStrictEqual (['SELECT "users"."uuid" AS "uuid","users"."label" AS "label","users"."is_actual" AS "is_actual","users"."id_role" AS "id_role" FROM "users" AS "users"'])
 
-	expect (new Job ({
+})
+
+test ('limit', () => {
+
+	expect (q (
+		{
 			take: 50,
-			skip: 0,		
-		}).db.dxQuery ([['users']])
-	).toStrictEqual ({
-		from: [['users']], 
-		options: {offset: 0, limit: 50}
-	})
+			skip: 0,
+		}, 
+		[['users']]
+	).options).toStrictEqual ({limit: 50, offset: 0})
 
 })
 
 test ('sort', () => {
 
-	expect (new Job ({
-			take: 50,
-			skip: 0,		
+	expect (pq (
+		{
 			sort: [{selector: 'label', desc: false}]
-		}).db.dxQuery ([['users']])
-	).toStrictEqual ({
-		from: [['users']], 
-		options: {offset: 0, limit: 50, order: [['label', false]]}
-	})
+		}, 
+		[['users']]
+	)).toStrictEqual (['SELECT "users"."uuid" AS "uuid","users"."label" AS "label","users"."is_actual" AS "is_actual","users"."id_role" AS "id_role" FROM "users" AS "users" ORDER BY "users"."label"'])
+
+})
+
+test ('and', () => {
+
+	expect (pq (
+		{
+			filter: [['label', '<>', 'admin'], 'and', ['label', '<>', 'user']]
+		}, 
+		[['users', {filters: [['is_actual', '=', true]]}]]
+	)).toStrictEqual ([true, 'admin', 'user', 'SELECT "users"."uuid" AS "uuid","users"."label" AS "label","users"."is_actual" AS "is_actual","users"."id_role" AS "id_role" FROM "users" AS "users" WHERE "users"."is_actual" = ? AND "users"."label" <> ? AND "users"."label" <> ?'])
+
 
 })
 
 test ('like', () => {
 
-	expect (new Job ({
-			take: 50,
-			skip: 0,		
-			filter: ['label', 'notcontains', 'admin']
-		}).db.dxQuery ([['users']])
-	).toStrictEqual ({
-		from: [['users', {filters: [['label', 'NOT ILIKE', '%admin%']]}]],
-		options: {offset: 0, limit: 50}
-	})
-
-	expect (new Job ({
-			take: 50,
-			skip: 0,		
+	expect (pq (
+		{
 			filter: ['label', 'contains', 'admin']
-		}).db.dxQuery ([['users']])
-	).toStrictEqual ({
-		from: [['users', {filters: [['label', 'ILIKE', '%admin%']]}]],
-		options: {offset: 0, limit: 50}
-	})
+		}, 
+		[['users']]
+	)).toStrictEqual (['%admin%', 'SELECT "users"."uuid" AS "uuid","users"."label" AS "label","users"."is_actual" AS "is_actual","users"."id_role" AS "id_role" FROM "users" AS "users" WHERE UPPER("users"."label") LIKE UPPER(?)'])
 
-	expect (new Job ({
-		take: 50,
-		skip: 0,		
-		filter: ['label', 'startswith', 'admin']
-	}).db.dxQuery ([['users']])
-	).toStrictEqual ({
-		from: [['users', {filters: [['label', 'ILIKE', 'admin%']]}]],
-		options: {offset: 0, limit: 50}
-	})
+	expect (pq (
+		{
+			filter: ['label', 'startswith', 'admin']
+		}, 
+		[['users']]
+	)).toStrictEqual (['admin%', 'SELECT "users"."uuid" AS "uuid","users"."label" AS "label","users"."is_actual" AS "is_actual","users"."id_role" AS "id_role" FROM "users" AS "users" WHERE UPPER("users"."label") LIKE UPPER(?)'])	
 
-	expect (new Job ({
-		take: 50,
-		skip: 0,		
-		filter: ['label', 'endswith', 'admin']
-	}).db.dxQuery ([['users']])
-	).toStrictEqual ({
-		from: [['users', {filters: [['label', 'ILIKE', '%admin']]}]],
-		options: {offset: 0, limit: 50}
-	})
+	expect (pq (
+		{
+			filter: ['label', 'endswith', 'admin']
+		}, 
+		[['users']]
+	)).toStrictEqual (['%admin', 'SELECT "users"."uuid" AS "uuid","users"."label" AS "label","users"."is_actual" AS "is_actual","users"."id_role" AS "id_role" FROM "users" AS "users" WHERE UPPER("users"."label") LIKE UPPER(?)'])	
 
-})
-
-test ('search', () => {
-
-	expect (new Job ({
-			take: 50,
-			skip: 0,		
-			filter: ['label', '=', 'admin']
-		}).db.dxQuery ([['users']])
-	).toStrictEqual ({
-		from: [['users', {filters: [['label', '=', 'admin']]}]], 
-		options: {offset: 0, limit: 50}
-	})
-
-	expect (new Job ({
-			take: 50,
-			skip: 0,		
-			filter: [['label', '=', 'admin'], 'and', ['is_deleted', '=', '0']]
-		}).db.dxQuery ([['users']])
-	).toStrictEqual ({
-		from: [['users', {filters: [['label', '=', 'admin'], ['is_deleted', '=', '0']]}]], 
-		options: {offset: 0, limit: 50}
-	})
-
-	expect (new Job ({
-			take: 50,
-			skip: 0,		
-			filter: ['label', '=', 'admin']
-		}).db.dxQuery ([['users', {as: 'u'}]])
-	).toStrictEqual ({
-		from: [['users', {as: 'u', filters: [['label', '=', 'admin']]}]], 
-		options: {offset: 0, limit: 50}
-	})
-	
-	expect (new Job ({
-			take: 50,
-			skip: 0,		
-			filter: ['label', '=', 'admin']
-		}).db.dxQuery ([['users', {as: 'u', filters: [['dt_fired', 'IS NULL']]}]])
-	).toStrictEqual ({
-		from: [['users', {as: 'u', filters: [['dt_fired', 'IS NULL'], ['label', '=', 'admin']]}]], 
-		options: {offset: 0, limit: 50}
-	})
+	expect (pq (
+		{
+			filter: ['label', 'notcontains', 'admin']
+		}, 
+		[['users']]
+	)).toStrictEqual (['%admin%', 'SELECT "users"."uuid" AS "uuid","users"."label" AS "label","users"."is_actual" AS "is_actual","users"."id_role" AS "id_role" FROM "users" AS "users" WHERE UPPER("users"."label") NOT LIKE UPPER(?)'])
 
 })
-
