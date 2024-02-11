@@ -51,8 +51,4 @@ In fact, this is the `db.model.createQuery` call, but with some additions from `
 
 # Limitations
 
-To date,
-* `not`
-* `or`
-* null values
-are not yet supported.
+To date, `IS NULL` predicates are never generated.

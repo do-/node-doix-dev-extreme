@@ -68,18 +68,6 @@ test ('sort', () => {
 
 })
 
-test ('and', () => {
-
-	expect (pq (
-		{
-			filter: [['label', '<>', 'admin'], 'and', ['label', '<>', 'user']]
-		}, 
-		[['users', {filters: [['is_actual', '=', true]]}]]
-	)).toStrictEqual ([true, 'admin', 'user', 'SELECT "users"."uuid" AS "uuid","users"."label" AS "label","users"."is_actual" AS "is_actual","users"."id_role" AS "id_role" FROM "users" AS "users" WHERE "users"."is_actual" = ? AND "users"."label" <> ? AND "users"."label" <> ?'])
-
-
-})
-
 test ('like', () => {
 
 	expect (pq (
@@ -111,3 +99,26 @@ test ('like', () => {
 	)).toStrictEqual (['%admin%', 'SELECT "users"."uuid" AS "uuid","users"."label" AS "label","users"."is_actual" AS "is_actual","users"."id_role" AS "id_role" FROM "users" AS "users" WHERE UPPER("users"."label") NOT LIKE UPPER(?)'])
 
 })
+
+test ('and not', () => {
+
+	expect (pq (
+		{
+			filter: [['label', '<>', 'admin'], 'and', ['not', ['label', '=', 'user']]]
+		}, 
+		[['users', {filters: [['is_actual', '=', true]]}]]
+	)).toStrictEqual ([true, 'admin', 'user', 'SELECT "users"."uuid" AS "uuid","users"."label" AS "label","users"."is_actual" AS "is_actual","users"."id_role" AS "id_role" FROM "users" AS "users" WHERE "users"."is_actual" = ? AND (("users"."label" <> ?) AND (NOT ("users"."label" = ?)))'])
+
+})
+
+test ('or', () => {
+
+	expect (pq (
+		{
+			filter: [['label', '=', 'admin'], 'or', ['label', '=', 'user']]
+		}, 
+		[['users', {filters: [['is_actual', '=', true]]}]]
+	)).toStrictEqual ([true, 'admin', 'user', 'SELECT "users"."uuid" AS "uuid","users"."label" AS "label","users"."is_actual" AS "is_actual","users"."id_role" AS "id_role" FROM "users" AS "users" WHERE "users"."is_actual" = ? AND (("users"."label" = ?) OR ("users"."label" = ?))'])
+
+})
+
