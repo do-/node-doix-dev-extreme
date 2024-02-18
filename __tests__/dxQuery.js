@@ -102,12 +102,16 @@ test ('like', () => {
 
 test ('and not', () => {
 
-	expect (pq (
+	const _ = q (
 		{
-			filter: [['label', '<>', 'admin'], 'and', ['not', ['label', '=', 'user']]]
+			filter: [[['label', '<>', 'admin'], 'and', ['not', ['label', '=', 'user']]], 'and', ['not', ['note', '=', 'WANTED']]]
 		}, 
 		[['users', {filters: [['is_actual', '=', true]]}]]
-	)).toStrictEqual ([true, 'admin', 'user', 'SELECT "users"."uuid" AS "uuid","users"."label" AS "label","users"."is_actual" AS "is_actual","users"."id_role" AS "id_role" FROM "users" AS "users" WHERE "users"."is_actual" = ? AND (("users"."label" <> ?) AND (NOT ("users"."label" = ?)))'])
+	)
+
+	expect (_.toParamsSql ()).toStrictEqual ([true, 'admin', 'user', 'SELECT "users"."uuid" AS "uuid","users"."label" AS "label","users"."is_actual" AS "is_actual","users"."id_role" AS "id_role" FROM "users" AS "users" WHERE "users"."is_actual" = ? AND (("users"."label" <> ?) AND (NOT ("users"."label" = ?)))'])
+
+	expect (_.tables[0].unknownColumnComparisons).toStrictEqual ([['note', '=', 'WANTED']])
 
 })
 
@@ -119,6 +123,13 @@ test ('or', () => {
 		}, 
 		[['users', {filters: [['is_actual', '=', true]]}]]
 	)).toStrictEqual ([true, 'admin', 'user', 'SELECT "users"."uuid" AS "uuid","users"."label" AS "label","users"."is_actual" AS "is_actual","users"."id_role" AS "id_role" FROM "users" AS "users" WHERE "users"."is_actual" = ? AND (("users"."label" = ?) OR ("users"."label" = ?))'])
+
+	expect (pq (
+		{
+			filter: [['one', '=', '1'], 'or', ['two', '=', '2']]
+		}, 
+		[['users', {filters: [['is_actual', '=', true]]}]]
+	)).toStrictEqual ([true, 'SELECT "users"."uuid" AS "uuid","users"."label" AS "label","users"."is_actual" AS "is_actual","users"."id_role" AS "id_role" FROM "users" AS "users" WHERE "users"."is_actual" = ?'])
 
 })
 

@@ -1,6 +1,6 @@
 {
   "name": "doix-devextreme",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "doix binding for DevExtreme framefork",
   "main": "index.js",
   "files": ["/lib", "/badges"],
@@ -30,7 +30,7 @@
   ],
   "author": "Dmitry Ovsyanko",
   "peerDependencies": {
-    "doix-db": "^1.0.38"
+    "doix-db": "^1.0.39"
   },
   "devDependencies": {
     "jest": "^29.6.1"
