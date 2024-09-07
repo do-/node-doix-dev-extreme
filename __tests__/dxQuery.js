@@ -7,7 +7,7 @@ class Job {
 
 	constructor (model, loadOptions) {
 	
-		this.rq = {loadOptions}
+		this.request = {loadOptions}
 	
 		this.db = {dxQuery, model}
 		
