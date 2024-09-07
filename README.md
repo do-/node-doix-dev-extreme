@@ -44,7 +44,7 @@ select_users:
   }
 ```
 
-In fact, this is the `db.model.createQuery` call, but with some additions from `this.rq.loadOptions`:
+In fact, this is the `db.model.createQuery` call, but with some additions from `this.request.loadOptions`:
 * the `limit` and `offset` options are overridden with `take` and `skip` respectively;
 * the `order` list is replaced with the translated `sort`, if any (so the `order` passed in argument acts as a default value);
 * the 1st query table `filter` option is appended with the translated `filter`.
